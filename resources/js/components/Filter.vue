@@ -79,8 +79,10 @@ export default {
                     });
                 }
             }
+
             this.handleChange();
         }
+
     },
 
     methods: {
@@ -96,7 +98,7 @@ export default {
             }
 
             let value = this.rows.length === 0 ? '' : JSON.stringify(this.rows);
-
+          //  this.rows = value;
             this.$store.commit(`${this.resourceName}/updateFilterState`, {
                 filterClass: this.filterKey,
                 value: value,
