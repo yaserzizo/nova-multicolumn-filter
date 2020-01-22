@@ -35,8 +35,19 @@
             @change="handleChangeCheckbox"
             class=" form-control"
         />
+        <multiselect
+                v-if="columnType === 'select'"
+                v-model="slctd"
+                :options="options"
+                :close-on-select="true"
+                :clear-on-select="false"
+                placeholder="Select one"
+                label="label"
+                track-by="value"
 
-        <select
+
+        ></multiselect>
+<!--        <select
             v-if="columnType === 'select'"
             class="w-full form-control form-select"
             @change="handleChangeSelect"
@@ -44,12 +55,17 @@
         >
             <option value="" selected>&mdash;</option>
             <option v-for="option in options" :value="option.value">{{option.label}}</option>
-        </select>
+        </select>-->
     </div>
 </template>
 
 <script>
+    import 'vue-multiselect/dist/vue-multiselect.min.css';
+    import Multiselect from "vue-multiselect";
     export default {
+        components: {
+            Multiselect
+        },
         props: [
             'columns', 'column', 'operator', 'value', 'index',
         ],
@@ -57,10 +73,9 @@
         data() {
             return {
                 oldColumnType: this.columnType,
-                valueDecoded: decodeURIComponent(this.value),
+                valueDecoded: decodeURIComponent(this.value)
             }
         },
-
         methods: {
             handleChange() {
                 this.$emit('change', this.index, {
@@ -100,14 +115,48 @@
             },
 
             handleChangeSelect(event) {
-                this.value = encodeURIComponent(event.target.value);
+
+                var queryString = Object.keys(event).map((key) => {
+                    return encodeURIComponent(key) + '=' + encodeURIComponent(event[key])
+                }).join('&');
+
+
+                this.value = queryString; //encodeURIComponent(event.value);
+
                 this.handleChange();
             },
+            handleValue() {
+                    var sValue = decodeURIComponent(this.value);
+                    var array =[]
+                    var sValueVariables = sValue.split('&');
+                    for (var i = 0; i < sValueVariables.length; i++) {
+                        var sParameterName = sValueVariables[i].split('=');
 
+                            array[sParameterName[0]]=sParameterName[1];
+
+                    }
+                    var final =Object.assign({}, array);
+                    console.log(final)
+                    return final;
+
+            },
             debouncer: _.debounce(callback => callback(), 500),
         },
 
         computed: {
+            slctd: {
+                get () {
+                    console.log('gget')
+                    console.log(this.value)
+                    console.log(this.handleValue())
+                    return this.handleValue();
+                },
+                set (val) {
+                    console.log(val)
+                    this.handleChangeSelect(val)
+
+                }
+            },
             columnType() {
                 return this.column ? this.columns[this.column].type : 'text';
             },
@@ -117,6 +166,10 @@
             },
 
             options() {
+ /*               var tst = this.column ? this.columns[this.column].options : [];
+                var reslt = ["g","h","q"]
+                console.log(reslt)
+                return reslt;*/
                 return this.column ? this.columns[this.column].options : [];
             },
 
