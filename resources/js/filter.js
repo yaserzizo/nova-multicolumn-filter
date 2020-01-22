@@ -1,3 +1,3 @@
 Nova.booting((Vue, router, store) => {
-    Vue.component('nova-multicolumn-filter', require('./components/Filter'))
+    Vue.component('nova-multicolumn-filter', require('./components/Filter').default)
 })
