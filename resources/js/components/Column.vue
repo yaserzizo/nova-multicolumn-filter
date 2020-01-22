@@ -31,7 +31,7 @@
         <input
             v-if="columnType === 'checkbox'"
             :type="columnType"
-            v-model="value"
+            v-model="localValue"
             @change="handleChangeCheckbox"
             class=" form-control"
         />
@@ -73,7 +73,8 @@
         data() {
             return {
                 oldColumnType: this.columnType,
-                valueDecoded: decodeURIComponent(this.value)
+                valueDecoded: decodeURIComponent(this.value),
+                localValue:this.value
             }
         },
         methods: {
@@ -81,14 +82,14 @@
                 this.$emit('change', this.index, {
                     column: this.column,
                     operator: this.getOperator,
-                    value: this.value,
+                    value: this.localValue,
                 });
             },
 
             handleChangeColumn(event) {
                 this.column = event.target.value;
                 if (this.columnType !== this.oldColumnType) {
-                    this.value = encodeURIComponent(this.valueDecoded = this.defaultValue);
+                    this.localValue = encodeURIComponent(this.valueDecoded = this.defaultValue);
                     this.operator = this.defaultOperator;
                 }
                 this.oldColumnType = this.columnType;
@@ -103,14 +104,14 @@
             handleChangeData(event) {
                 this.debouncer(() => {
                     if (event.which != 9) {
-                        this.value = encodeURIComponent(this.valueDecoded.trim());
+                        this.localValue = encodeURIComponent(this.valueDecoded.trim());
                         this.handleChange();
                     }
                 })
             },
 
             handleChangeCheckbox(event) {
-                this.value = this.value ? 1 : 0;
+                this.localValue = this.value ? 1 : 0;
                 this.handleChange();
             },
 
@@ -121,12 +122,12 @@
                 }).join('&');
 
 
-                this.value = queryString; //encodeURIComponent(event.value);
+                this.localValue = queryString; //encodeURIComponent(event.value);
 
                 this.handleChange();
             },
             handleValue() {
-                    var sValue = decodeURIComponent(this.value);
+                    var sValue = decodeURIComponent(this.localValue);
                     var array =[]
                     var sValueVariables = sValue.split('&');
                     for (var i = 0; i < sValueVariables.length; i++) {
@@ -136,7 +137,6 @@
 
                     }
                     var final =Object.assign({}, array);
-                    console.log(final)
                     return final;
 
             },
@@ -146,13 +146,9 @@
         computed: {
             slctd: {
                 get () {
-                    console.log('gget')
-                    console.log(this.value)
-                    console.log(this.handleValue())
                     return this.handleValue();
                 },
                 set (val) {
-                    console.log(val)
                     this.handleChangeSelect(val)
 
                 }
@@ -166,10 +162,6 @@
             },
 
             options() {
- /*               var tst = this.column ? this.columns[this.column].options : [];
-                var reslt = ["g","h","q"]
-                console.log(reslt)
-                return reslt;*/
                 return this.column ? this.columns[this.column].options : [];
             },
 
